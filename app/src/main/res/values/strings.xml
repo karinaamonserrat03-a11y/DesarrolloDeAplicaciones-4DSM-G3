@@ -1,0 +1,34 @@
+<resources>
+    <!-- Generales -->
+    <string name="app_name">EduNote</string>
+    <string name="nav_inicio">Inicio</string>
+    <string name="nav_tareas">Tareas</string>
+    <string name="nav_notas">Notas</string>
+
+    <!-- Pantalla de Inicio -->
+    <string name="home_titulo">Inicio</string>
+    <string name="home_subtitulo">¡Listo para tu semana académica!</string>
+    <string name="home_promedio_titulo">Promedio general</string>
+    <string name="home_alerta_refuerzo">Refuerzo recomendado</string>
+    <string name="home_seccion_entregas">Próximas entregas</string>
+
+    <!-- Pantalla de Inicio de Sesión -->
+    <string name="login_subtitulo">Organiza tus tareas y mejora tus notas</string>
+    <string name="label_correo">Correo electrónico</string>
+    <string name="error_formato_correo">Formato inválido</string>
+    <string name="label_contrasena">Contraseña</string>
+    <string name="btn_olvido_contrasena">¿Olvidaste tu contraseña?</string>
+    <string name="btn_iniciar_sesion">Iniciar sesión</string>
+    <string name="btn_crear_cuenta">Crear cuenta</string>
+
+    <!-- Pantalla de Tareas y Filtros -->
+    <string name="tareas_titulo">Tareas</string>
+    <string name="filtro_todas">Todas</string>
+    <string name="filtro_pendientes">Pendientes</string>
+    <string name="filtro_hechas">Hechas</string>
+    <string name="nueva_tarea_titulo">Nueva Tarea</string>
+    <string name="label_titulo_tarea">Título de la tarea</string>
+    <string name="label_materia">Materia</string>
+    <string name="label_fecha_limite">Fecha límite</string>
+    <string name="btn_guardar">Guardar tarea</string>
+</resources>
