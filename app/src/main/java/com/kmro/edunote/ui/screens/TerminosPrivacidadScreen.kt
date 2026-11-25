@@ -23,8 +23,7 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import com.kmro.edunote.util.SessionManager
 
-/**
- * Modelo interno que representa cada punto informativo dentro de [TerminosPrivacidadScreen].
+/** Modelo interno que representa cada punto informativo dentro de TerminosPrivacidadScreen
  */
 private data class ClausulaTerminos(
     val numero: String,
@@ -32,16 +31,7 @@ private data class ClausulaTerminos(
     val descripcion: String
 )
 
-/**
- * Pantalla de Términos de Servicio y Política de Privacidad de EduNote.
- *
- * Presenta de forma transparente las condiciones de uso educativo, resguardo local de datos,
- * derechos del alumno y seguridad de la cuenta. Cuando [modoSoloLectura] es `false`, exige
- * marcar la casilla de consentimiento antes de habilitar el acceso a la pantalla principal; si
- * el usuario rechaza o retrocede sin aceptar, limpia la sesión pendiente y regresa al inicio de sesión.
- *
- * @param navController Controlador de navegación para avanzar a inicio o regresar.
- * @param modoSoloLectura `true` cuando se consulta desde el perfil; `false` durante el flujo de acceso.
+/** Pantalla de Términos de Servicio y Política de Privacidad de la APP
  */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -195,7 +185,7 @@ fun TerminosPrivacidadScreen(
 
             Spacer(modifier = Modifier.height(16.dp))
 
-            // Tarjeta de aceptación con Checkbox interactivo.
+            // Tarjeta de aceptación
             Surface(
                 modifier = Modifier.fillMaxWidth(),
                 shape = RoundedCornerShape(24.dp),
@@ -245,7 +235,7 @@ fun TerminosPrivacidadScreen(
 
             Spacer(modifier = Modifier.height(20.dp))
 
-            // Botón principal: habilita el acceso a la aplicación solo si aceptó los términos.
+            // Boton
             Button(
                 onClick = {
                     if (modoSoloLectura) {
@@ -299,7 +289,7 @@ fun TerminosPrivacidadScreen(
         }
     }
 
-    // Diálogo de confirmación cuando el usuario intenta salir o rechazar los términos.
+    // Acptación de terminos y condiciones
     if (mostrarDialogoRechazo) {
         AlertDialog(
             onDismissRequest = { mostrarDialogoRechazo = false },
@@ -342,11 +332,6 @@ fun TerminosPrivacidadScreen(
     }
 }
 
-/**
- * Tarjeta blanca redondeada que muestra una cláusula numerada dentro de [TerminosPrivacidadScreen].
- *
- * @param clausula Datos de número, título y descripción de la cláusula.
- */
 @Composable
 private fun TarjetaClausulaTerminos(clausula: ClausulaTerminos) {
     Surface(
