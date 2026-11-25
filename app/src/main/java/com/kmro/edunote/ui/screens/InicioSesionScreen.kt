@@ -1,11 +1,14 @@
 package com.kmro.edunote.ui.screens
 
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
@@ -19,8 +22,11 @@ import com.kmro.edunote.R
 import com.kmro.edunote.ui.EduNoteViewModel
 
 /**
- * Pantalla de Inicio de Sesión.
- * Permite al usuario autenticarse ingresando su correo electrónico y contraseña
+ * Pantalla de inicio de sesión de EduNote.
+ *
+ * Permite al estudiante autenticarse ingresando su correo electrónico y contraseña, valida el
+ * formato del correo, muestra los mensajes de autenticación emitidos por [EduNoteViewModel] y
+ * navega directamente a la pantalla principal cuando el acceso es válido.
  */
 @Composable
 fun InicioSesionScreen(
@@ -28,9 +34,9 @@ fun InicioSesionScreen(
     onCrearCuentaClick: () -> Unit = { navController.navigate("registro") },
     viewModel: EduNoteViewModel = hiltViewModel()
 ) {
-    var correo by remember { mutableStateOf("") }
+    var correo by rememberSaveable { mutableStateOf("") }
     var contrasena by remember { mutableStateOf("") }
-    var passwordVisible by remember { mutableStateOf(false) }
+    var passwordVisible by rememberSaveable { mutableStateOf(false) }
 
     val mensajeAuth by viewModel.mensajeAuth.collectAsState()
     val esCorreoValido = android.util.Patterns.EMAIL_ADDRESS.matcher(correo).matches()
@@ -42,6 +48,7 @@ fun InicioSesionScreen(
         Column(
             modifier = Modifier
                 .fillMaxSize()
+                .verticalScroll(rememberScrollState())
                 .padding(24.dp),
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Center
@@ -71,7 +78,7 @@ fun InicioSesionScreen(
 
             Spacer(modifier = Modifier.height(32.dp))
 
-            // Campo de correo electrónico
+            // Campo de correo electrónico.
             OutlinedTextField(
                 value = correo,
                 onValueChange = {
@@ -110,7 +117,7 @@ fun InicioSesionScreen(
 
             Spacer(modifier = Modifier.height(16.dp))
 
-            // Campo de contraseña
+            // Campo de contraseña con alternador de visibilidad.
             OutlinedTextField(
                 value = contrasena,
                 onValueChange = {
@@ -155,7 +162,7 @@ fun InicioSesionScreen(
 
             Spacer(modifier = Modifier.height(24.dp))
 
-            // Botón de Iniciar Sesión
+            // Botón de iniciar sesión.
             Button(
                 onClick = {
                     viewModel.iniciarSesion(
@@ -188,7 +195,7 @@ fun InicioSesionScreen(
 
             Spacer(modifier = Modifier.height(16.dp))
 
-            // Botón de Crear cuenta
+            // Botón para navegar hacia el registro de una nueva cuenta.
             OutlinedButton(
                 onClick = onCrearCuentaClick,
                 modifier = Modifier

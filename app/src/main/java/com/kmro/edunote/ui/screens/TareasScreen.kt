@@ -26,6 +26,9 @@ import com.kmro.edunote.domain.model.Tarea
 import com.kmro.edunote.ui.EduNoteViewModel
 import com.kmro.edunote.ui.components.EduNoteBottomBar
 
+/*
+ * Pantalla de gestión y consulta de tareas académicas en EduNote.
+ */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun TareasScreen(
@@ -48,6 +51,7 @@ fun TareasScreen(
         "$categoriaHechas (${tareasHechas.size})"
     )
 
+    // Aplica el filtro correspondiente según el chip seleccionado en la barra superior.
     val tareasFiltradas = when (filtroSeleccionado) {
         1 -> tareasPendientes
         2 -> tareasHechas
@@ -65,7 +69,8 @@ fun TareasScreen(
                         )
                     },
                     actions = {
-                        IconButton(onClick = {}) {
+                        // Navega hacia la ruta de perfil configurada en el grafo de navegación.
+                        IconButton(onClick = { navController.navigate("perfil") }) {
                             Icon(
                                 imageVector = Icons.Filled.AccountCircle,
                                 contentDescription = "Perfil",
@@ -140,6 +145,15 @@ fun TareasScreen(
     }
 }
 
+/**
+ * Tarjeta individual que representa una tarea académica dentro del listado de [TareasScreen].
+ *
+ * Muestra la casilla de completado, el título (tachado si está completada), la materia y
+ * fecha límite, las notas adicionales y una insignia con la prioridad de la entrega.
+ *
+ * @param tarea Modelo de dominio de la tarea a renderizar.
+ * @param onCheckedChange Callback invocado al marcar o desmarcar la casilla de verificación.
+ */
 @Composable
 private fun TareaCardItem(
     tarea: Tarea,

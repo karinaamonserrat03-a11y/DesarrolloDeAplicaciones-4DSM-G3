@@ -31,4 +31,16 @@
     <string name="label_materia">Materia</string>
     <string name="label_fecha_limite">Fecha límite</string>
     <string name="btn_guardar">Guardar tarea</string>
+
+    <!-- Pantalla de Perfil -->
+    <string name="perfil_s">Perfil</string>
+    <string name="btn_regresar">Regresar</string>
+    <string name="avatar">Avatar</string>
+
+    <string name="nombre">Nombre</string>
+    <string name="cerrar_sesion">Cerrar Sesión</string>
+
+
+
+
 </resources>

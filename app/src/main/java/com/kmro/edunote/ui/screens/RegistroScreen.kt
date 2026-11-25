@@ -2,15 +2,16 @@ package com.kmro.edunote.ui.screens
 
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
@@ -21,28 +22,32 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import com.kmro.edunote.R
 import com.kmro.edunote.ui.EduNoteViewModel
+import com.kmro.edunote.util.SessionManager
 
 /**
- * Pantalla para crear una cuenta
+ * Pantalla de Registro de Cuenta.
+ *
+ * Permite al estudiante crear una cuenta nueva ingresando su nombre, correo electrónico y
+ * contraseña, conserva el estado ante rotaciones de pantalla y envía a la pantalla de Términos y
+ * Privacidad cuando la cuenta aún no ha aceptado las condiciones.
+
  */
 @Composable
 fun RegistroScreen(
     navController: NavController,
+    onIniciarSesionClick: () -> Unit = { navController.popBackStack() },
     viewModel: EduNoteViewModel = hiltViewModel()
 ) {
-    var nombreUsuario by remember { mutableStateOf("") }
-    var correo by remember { mutableStateOf("") }
+    val context = LocalContext.current
+    val sessionManager = remember { SessionManager(context) }
+
+    var nombreUsuario by rememberSaveable { mutableStateOf("") }
+    var correo by rememberSaveable { mutableStateOf("") }
     var contrasena by remember { mutableStateOf("") }
-    var confirmarContrasena by remember { mutableStateOf("") }
-    var passwordVisible by remember { mutableStateOf(false) }
-    var confirmarPasswordVisible by remember { mutableStateOf(false) }
-    var mensajeError by remember { mutableStateOf<String?>(null) }
+    var passwordVisible by rememberSaveable { mutableStateOf(false) }
 
     val mensajeAuth by viewModel.mensajeAuth.collectAsState()
-    val errorMostrado = mensajeError ?: mensajeAuth
-
-    val esCorreoValido =
-        correo.isBlank() || android.util.Patterns.EMAIL_ADDRESS.matcher(correo).matches()
+    val esCorreoValido = android.util.Patterns.EMAIL_ADDRESS.matcher(correo).matches()
 
     Surface(
         modifier = Modifier.fillMaxSize(),
@@ -57,64 +62,62 @@ fun RegistroScreen(
             verticalArrangement = Arrangement.Center
         ) {
             Icon(
-                imageVector = Icons.Filled.PersonAdd,
-                contentDescription = "Crear cuenta",
+                imageVector = Icons.Filled.School,
+                contentDescription = "Logo EduNote",
                 modifier = Modifier
-                    .size(64.dp)
+                    .size(72.dp)
                     .padding(bottom = 8.dp),
                 tint = MaterialTheme.colorScheme.primary
             )
 
             Text(
-                text = "Crear cuenta",
-                style = MaterialTheme.typography.headlineLarge.copy(fontWeight = FontWeight.Bold),
+                text = stringResource(R.string.app_name),
+                style = MaterialTheme.typography.headlineLarge,
                 color = MaterialTheme.colorScheme.primary
             )
 
-            Spacer(modifier = Modifier.height(6.dp))
+            Spacer(modifier = Modifier.height(8.dp))
 
             Text(
-                text = "Regístrate en ${stringResource(R.string.app_name)} para organizar tus tareas y notas",
+                text = "Crea tu cuenta de estudiante",
                 style = MaterialTheme.typography.bodyMedium,
                 color = MaterialTheme.colorScheme.onSurfaceVariant
             )
 
-            Spacer(modifier = Modifier.height(28.dp))
+            Spacer(modifier = Modifier.height(32.dp))
 
-            // Nombre de usuario
+            // Campo de nombre de usuario
             OutlinedTextField(
                 value = nombreUsuario,
                 onValueChange = {
                     nombreUsuario = it
-                    mensajeError = null
                     viewModel.limpiarMensaje()
                 },
                 label = { Text("Nombre de usuario") },
                 singleLine = true,
                 leadingIcon = {
-                    Icon(imageVector = Icons.Filled.Person, contentDescription = "Nombre de usuario")
+                    Icon(imageVector = Icons.Filled.Person, contentDescription = "Icono usuario")
                 },
                 modifier = Modifier.fillMaxWidth()
             )
 
-            Spacer(modifier = Modifier.height(14.dp))
+            Spacer(modifier = Modifier.height(16.dp))
 
-            // Correo electrónico
+            // Campo de correo electrónico
             OutlinedTextField(
                 value = correo,
                 onValueChange = {
                     correo = it
-                    mensajeError = null
                     viewModel.limpiarMensaje()
                 },
                 label = { Text(stringResource(R.string.label_correo)) },
                 singleLine = true,
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email),
                 leadingIcon = {
-                    Icon(imageVector = Icons.Filled.Email, contentDescription = "Correo")
+                    Icon(imageVector = Icons.Filled.Email, contentDescription = "Icono correo")
                 },
                 trailingIcon = {
-                    if (correo.isNotBlank() && android.util.Patterns.EMAIL_ADDRESS.matcher(correo).matches()) {
+                    if (esCorreoValido) {
                         Icon(
                             imageVector = Icons.Filled.CheckCircle,
                             contentDescription = "Correo válido",
@@ -122,11 +125,11 @@ fun RegistroScreen(
                         )
                     }
                 },
-                isError = !esCorreoValido,
+                isError = correo.isNotBlank() && !esCorreoValido,
                 modifier = Modifier.fillMaxWidth()
             )
 
-            if (!esCorreoValido) {
+            if (correo.isNotBlank() && !esCorreoValido) {
                 Text(
                     text = stringResource(R.string.error_formato_correo),
                     color = MaterialTheme.colorScheme.error,
@@ -137,14 +140,13 @@ fun RegistroScreen(
                 )
             }
 
-            Spacer(modifier = Modifier.height(14.dp))
+            Spacer(modifier = Modifier.height(16.dp))
 
-            // Contraseña
+            // Campo de contraseña
             OutlinedTextField(
                 value = contrasena,
                 onValueChange = {
                     contrasena = it
-                    mensajeError = null
                     viewModel.limpiarMensaje()
                 },
                 label = { Text(stringResource(R.string.label_contrasena)) },
@@ -152,46 +154,20 @@ fun RegistroScreen(
                 visualTransformation = if (passwordVisible) VisualTransformation.None else PasswordVisualTransformation(),
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
                 leadingIcon = {
-                    Icon(imageVector = Icons.Filled.Lock, contentDescription = "Contraseña")
+                    Icon(imageVector = Icons.Filled.Lock, contentDescription = "Icono candado")
                 },
                 trailingIcon = {
-                    val icono = if (passwordVisible) Icons.Filled.Visibility else Icons.Filled.VisibilityOff
+                    val imagen = if (passwordVisible) Icons.Filled.Visibility else Icons.Filled.VisibilityOff
                     IconButton(onClick = { passwordVisible = !passwordVisible }) {
-                        Icon(imageVector = icono, contentDescription = "Mostrar u ocultar contraseña")
+                        Icon(imageVector = imagen, contentDescription = "Mostrar/Ocultar contraseña")
                     }
                 },
                 modifier = Modifier.fillMaxWidth()
             )
 
-            Spacer(modifier = Modifier.height(14.dp))
-
-            // Confirmar contraseña
-            OutlinedTextField(
-                value = confirmarContrasena,
-                onValueChange = {
-                    confirmarContrasena = it
-                    mensajeError = null
-                    viewModel.limpiarMensaje()
-                },
-                label = { Text("Confirmar contraseña") },
-                singleLine = true,
-                visualTransformation = if (confirmarPasswordVisible) VisualTransformation.None else PasswordVisualTransformation(),
-                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
-                leadingIcon = {
-                    Icon(imageVector = Icons.Filled.Lock, contentDescription = "Confirmar contraseña")
-                },
-                trailingIcon = {
-                    val icono = if (confirmarPasswordVisible) Icons.Filled.Visibility else Icons.Filled.VisibilityOff
-                    IconButton(onClick = { confirmarPasswordVisible = !confirmarPasswordVisible }) {
-                        Icon(imageVector = icono, contentDescription = "Mostrar u ocultar confirmación")
-                    }
-                },
-                modifier = Modifier.fillMaxWidth()
-            )
-
-            if (errorMostrado != null) {
+            if (mensajeAuth != null) {
                 Text(
-                    text = errorMostrado,
+                    text = mensajeAuth!!,
                     color = MaterialTheme.colorScheme.error,
                     style = MaterialTheme.typography.bodySmall,
                     modifier = Modifier
@@ -202,47 +178,64 @@ fun RegistroScreen(
 
             Spacer(modifier = Modifier.height(24.dp))
 
+            // Botón de Crear cuenta: registra y dirige a Términos y Privacidad si aún no acepta
             Button(
                 onClick = {
-                    when {
-                        nombreUsuario.isBlank() || correo.isBlank() || contrasena.isBlank() -> {
-                            mensajeError = "Completa todos los campos."
+                    viewModel.registrarUsuario(
+                        nombreUsuario = nombreUsuario,
+                        correo = correo,
+                        contrasena = contrasena,
+                        onExito = {
+                            val correoRegistrado = sessionManager.obtenerCorreoActivo() ?: correo.trim()
+                            val destino = if (sessionManager.haAceptadoTerminos(correoRegistrado)) {
+                                "inicio"
+                            } else {
+                                "terminos"
+                            }
+                            navController.navigate(destino) {
+                                popUpTo("registro") { inclusive = true }
+                            }
                         }
-                        !android.util.Patterns.EMAIL_ADDRESS.matcher(correo).matches() -> {
-                            mensajeError = "Ingresa un correo electrónico válido."
-                        }
-                        contrasena != confirmarContrasena -> {
-                            mensajeError = "Las contraseñas no coinciden."
-                        }
-                        else -> {
-                            viewModel.registrarUsuario(
-                                nombreUsuario = nombreUsuario,
-                                correo = correo,
-                                contrasena = contrasena,
-                                onExito = {
-                                    navController.navigate("inicio") {
-                                        popUpTo("inicio_sesion") { inclusive = true }
-                                    }
-                                }
-                            )
-                        }
-                    }
+                    )
                 },
-                shape = RoundedCornerShape(25.dp),
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(50.dp)
             ) {
-                Text(
-                    text = "Crear cuenta",
-                    style = MaterialTheme.typography.bodyLarge.copy(fontWeight = FontWeight.Bold)
-                )
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.Center
+                ) {
+                    Icon(imageVector = Icons.Filled.PersonAdd, contentDescription = "Crear cuenta")
+                    Spacer(modifier = Modifier.width(8.dp))
+                    Text(
+                        text = stringResource(R.string.btn_crear_cuenta),
+                        style = MaterialTheme.typography.labelLarge.copy(fontWeight = FontWeight.Bold)
+                    )
+                }
             }
 
-            Spacer(modifier = Modifier.height(12.dp))
+            Spacer(modifier = Modifier.height(16.dp))
 
-            TextButton(onClick = { navController.popBackStack() }) {
-                Text("Ya tengo cuenta · Iniciar sesión")
+            HorizontalDivider(modifier = Modifier.fillMaxWidth())
+
+            Spacer(modifier = Modifier.height(16.dp))
+
+            // Botón para volver a iniciar sesión si ya tiene cuenta
+            OutlinedButton(
+                onClick = onIniciarSesionClick,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(50.dp)
+            ) {
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.Center
+                ) {
+                    Icon(imageVector = Icons.Filled.ArrowForward, contentDescription = "Iniciar sesión")
+                    Spacer(modifier = Modifier.width(8.dp))
+                    Text(stringResource(R.string.btn_iniciar_sesion))
+                }
             }
         }
     }

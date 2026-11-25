@@ -40,7 +40,6 @@ fun InicioScreen(
     val usuarioActual by viewModel.usuarioActual.collectAsState()
     val tareasRoom by viewModel.tareas.collectAsState()
     val nombreUsuario = usuarioActual?.nombreUsuario.orEmpty()
-
     val tareasEntregas = remember(tareasRoom) {
         tareasRoom.filter { tarea ->
             !tarea.titulo.startsWith("Estudiar ", ignoreCase = true) &&
@@ -48,12 +47,10 @@ fun InicioScreen(
                     !tarea.estado.equals("Completada", ignoreCase = true)
         }
     }
-
     val totalTareas = tareasRoom.size
     val tareasHechas = tareasRoom.count { it.estado.equals("Completada", ignoreCase = true) }
     val progresoTareas = if (totalTareas > 0) tareasHechas.toFloat() / totalTareas.toFloat() else 0f
     val porcentajeTareas = (progresoTareas * 100).toInt()
-
     val tareasConCalificacion = remember(tareasRoom) {
         tareasRoom.filter { it.calificacion != null }
     }
@@ -63,19 +60,16 @@ fun InicioScreen(
     val promedioGeneral = remember(calificaciones) {
         if (calificaciones.isNotEmpty()) calificaciones.average() else null
     }
-
     val tareaEnRiesgo = remember(tareasConCalificacion) {
         tareasConCalificacion
             .filter { (it.calificacion?.toDouble() ?: 10.0) < 7.0 }
             .minByOrNull { it.calificacion?.toDouble() ?: 10.0 }
     }
-
     val mostrarTarjetaRefuerzo = tareaEnRiesgo != null || (promedioGeneral != null && promedioGeneral < 7.0)
-
     var tareaParaRefuerzo by remember { mutableStateOf<TareaDominio?>(null) }
 
     Scaffold(
-        topBar = { EduNoteTopBar() },
+        topBar = { EduNoteTopBar(navController) },
         bottomBar = { EduNoteBottomBar(navController = navController) }
     ) { paddingValues ->
         Column(
@@ -152,7 +146,7 @@ fun InicioScreen(
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun EduNoteTopBar() {
+fun EduNoteTopBar(navController: NavController) {
     TopAppBar(
         title = {
             Row(
@@ -180,7 +174,7 @@ fun EduNoteTopBar() {
             }
         },
         actions = {
-            IconButton(onClick = { }) {
+            IconButton(onClick = { navController.navigate("perfil") }) {
                 Icon(
                     imageVector = Icons.Filled.AccountCircle,
                     contentDescription = "Perfil",
@@ -190,7 +184,7 @@ fun EduNoteTopBar() {
             }
         },
         colors = TopAppBarDefaults.topAppBarColors(containerColor = MaterialTheme.colorScheme.background)
-    )
+        )
 }
 
 @Composable

@@ -29,6 +29,9 @@ import com.kmro.edunote.ui.model.MateriaCalificacion
 import com.kmro.edunote.ui.model.ResumenAcademico
 import kotlin.math.round
 
+/*
+ * Pantalla de notas y seguimiento académico de EduNote.
+ */
 @Composable
 fun NotasScreen(
     navController: NavController,
@@ -36,7 +39,6 @@ fun NotasScreen(
 ) {
     val tareasRoom by viewModel.tareas.collectAsState()
     val aprobatoriaMinima = 6.0
-
     val tareasPorMateria = remember(tareasRoom) {
         tareasRoom
             .filter { it.materia.isNotBlank() && it.calificacion != null }
@@ -83,7 +85,11 @@ fun NotasScreen(
     var tareaParaRefuerzo by remember { mutableStateOf<TareaDominio?>(null) }
 
     Scaffold(
-        topBar = { NotasTopBar() },
+        topBar = {
+            NotasTopBar(
+                onPerfilClick = { navController.navigate("perfil") }
+            )
+        },
         bottomBar = { EduNoteBottomBar(navController = navController) },
         containerColor = MaterialTheme.colorScheme.background
     ) { paddingValues ->
@@ -230,9 +236,14 @@ fun NotasScreen(
     }
 }
 
+/*
+ * Barra superior de la pantalla de notas con el título de sección y acceso de perfil.
+ */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun NotasTopBar() {
+fun NotasTopBar(
+    onPerfilClick: () -> Unit = {}
+) {
     TopAppBar(
         title = {
             Text(
@@ -241,11 +252,11 @@ fun NotasTopBar() {
             )
         },
         actions = {
-            IconButton(onClick = { }) {
+            IconButton(onClick = onPerfilClick) {
                 Icon(
                     imageVector = Icons.Filled.AccountCircle,
                     contentDescription = "Perfil",
-                    tint = MaterialTheme.colorScheme.onSurface
+                    tint = MaterialTheme.colorScheme.onSecondaryContainer
                 )
             }
         },
@@ -255,6 +266,8 @@ fun NotasTopBar() {
         )
     )
 }
+
+// Tarjeta que resume el promedio general, la calificación aprobatoria mínima, la barra de avance y el conteo de asignaturas aprobadas frente a las que se encuentran en riesgo.
 
 @Composable
 fun TarjetaPromedioGeneralNotas(
@@ -345,6 +358,8 @@ fun TarjetaPromedioGeneralNotas(
     }
 }
 
+//Encabezado de la sección de materias que muestra el título y el total de asignaturas evaluadas
+
 @Composable
 fun EncabezadoSeccionMaterias(totalAsignaturas: Int) {
     Row(
@@ -364,6 +379,8 @@ fun EncabezadoSeccionMaterias(totalAsignaturas: Int) {
         )
     }
 }
+
+// Tarjeta de asignatura aprobada que muestra su nombre, calificación promedio y barra de progreso
 
 @Composable
 fun ItemMateriaNormal(materia: MateriaCalificacion) {
@@ -428,6 +445,7 @@ fun ItemMateriaNormal(materia: MateriaCalificacion) {
     }
 }
 
+// Tarjeta de asignatura en riesgo o reprobada que resalta la alerta y permite abrir el material de refuerzo correspondiente
 @Composable
 fun ItemMateriaAlerta(
     materia: MateriaCalificacion,
@@ -568,6 +586,8 @@ fun ItemMateriaAlerta(
         }
     }
 }
+
+// Botón de acción inferior que abre el selector de actividades para registrar una calificación
 
 @Composable
 fun BotonRegistrarCalificacion(onClick: () -> Unit) {

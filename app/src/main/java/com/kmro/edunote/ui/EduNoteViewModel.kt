@@ -14,11 +14,16 @@ import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
+/*
+ * ViewModel principal de EduNote encargado de coordinar el estado de autenticación,
+ * el usuario activo y las operaciones sobre las tareas académicas.*
+ */
 @HiltViewModel
 class EduNoteViewModel @Inject constructor(
     private val repository: EduNoteRepository
 ) : ViewModel() {
 
+    /* Flujo reactivo con las tareas académicas expuestas a la interfaz. */
     val tareas: StateFlow<List<Tarea>> = repository.obtenerTareas()
         .stateIn(
             scope = viewModelScope,
@@ -26,6 +31,7 @@ class EduNoteViewModel @Inject constructor(
             initialValue = emptyList()
         )
 
+    /* Flujo reactivo con el perfil del estudiante activo. */
     val usuarioActual: StateFlow<Usuario?> = repository.obtenerUsuarioActivo()
         .stateIn(
             scope = viewModelScope,
@@ -34,8 +40,13 @@ class EduNoteViewModel @Inject constructor(
         )
 
     private val _mensajeAuth = MutableStateFlow<String?>(null)
+
+    /* Mensaje de validación o error generado durante el registro o inicio de sesión. */
     val mensajeAuth: StateFlow<String?> = _mensajeAuth.asStateFlow()
 
+    /*
+     * Valida y registra un nuevo estudiante en el sistema.
+     */
     fun registrarUsuario(
         nombreUsuario: String,
         correo: String,
@@ -58,6 +69,9 @@ class EduNoteViewModel @Inject constructor(
         }
     }
 
+    /*
+     * Autentica al estudiante con su correo y contraseña.
+     */
     fun iniciarSesion(
         correo: String,
         contrasena: String,
@@ -78,6 +92,9 @@ class EduNoteViewModel @Inject constructor(
         }
     }
 
+    /*
+     * Crea y guarda una nueva tarea académica en estado `Pendiente`.
+     */
     fun guardarTarea(
         titulo: String,
         materia: String,
@@ -103,16 +120,25 @@ class EduNoteViewModel @Inject constructor(
         }
     }
 
+    /*
+     * Asigna una calificación numérica a la tarea indicada.
+     */
     fun calificarTarea(idTarea: Int, calificacion: Double) {
         viewModelScope.launch {
             repository.calificarTarea(idTarea, calificacion)
         }
     }
 
+    /*
+     * Limpia el mensaje actual de autenticación o validación.
+     */
     fun limpiarMensaje() {
         _mensajeAuth.value = null
     }
 
+    /*
+     * Cambia el estado de completado de una tarea específica.
+     */
     fun cambiarEstadoTarea(tarea: Tarea, completada: Boolean) {
         viewModelScope.launch {
             repository.actualizarEstadoTarea(tarea.idTarea, completada)
